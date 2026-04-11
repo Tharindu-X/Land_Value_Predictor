@@ -1,5 +1,8 @@
 """
-Train Models on NEW DATASET (Columns Removed: Pollution Index, Tourist Score, Population Index)
+Train Models on CURRENT DATASET (Cleaned from CurrentDataset_cleaned_fixed_new.csv)
+Columns: city, ZipCode, Price, HospitalDistance, Bank/ATM, SchoolDistance,
+         SoldDate, BiddedDate, DistToTown, isfloodedArea, IsTsunmaiAlertedArea,
+         Latitude, Longtitude
 """
 
 import pandas as pd
@@ -16,8 +19,19 @@ from sklearn.svm import SVR
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import (mean_absolute_error, mean_squared_error, r2_score, 
                             mean_absolute_percentage_error, median_absolute_error)
-import xgboost as xgb
-import lightgbm as lgb
+
+try:
+    import xgboost as xgb
+except ImportError:
+    xgb = None
+    print("⚠️  Warning: xgboost not installed - XGBoost model will be skipped")
+
+try:
+    import lightgbm as lgb
+except ImportError:
+    lgb = None
+    print("⚠️  Warning: lightgbm not installed - LightGBM model will be skipped")
+
 from statsmodels.tsa.arima.model import ARIMA
 from pmdarima import auto_arima
 import joblib
@@ -28,7 +42,8 @@ warnings.filterwarnings('ignore')
 
 class ImprovedLandValueMLSystemNew:
     """
-    Enhanced ML System for NEW DATASET (without Pollution Index, Tourist Score, Population Index)
+    Enhanced ML System for CurrentDataset (Cleaned and Ready for Training)
+    With 12 ML Models and 5-Fold Cross-Validation
     """
     
     def __init__(self, data_path):
@@ -88,8 +103,8 @@ class ImprovedLandValueMLSystemNew:
         """Load and preprocess data with detailed output"""
         print("\n" + "█"*80)
         print("█" + " "*78 + "█")
-        print("█" + " LAND VALUE PREDICTION ML SYSTEM - NEW DATASET ".center(78) + "█")
-        print("█" + " (Removed: Pollution Index, Tourist Score, Population Index) ".center(78) + "█")
+        print("█" + " LAND VALUE PREDICTION ML SYSTEM - CURRENT DATASET ".center(78) + "█")
+        print("█" + " (Cleaned from CurrentDataset.csv - Original Data Preserved) ".center(78) + "█")
         print("█" + " "*78 + "█")
         print("█"*80)
         
@@ -384,13 +399,36 @@ class ImprovedLandValueMLSystemNew:
         print("\n✅ Training Complete!\n")
 
 
-def main():
-    """Main execution"""
-    system = ImprovedLandValueMLSystemNew('dataset/LandSale_removescolumns.csv')
+def main(dataset_path='dataset/CurrentDataset_cleaned_fixed_new.csv'):
+    """Main execution - Train on current dataset"""
+    system = ImprovedLandValueMLSystemNew(dataset_path)
     system.load_and_prepare_data()
     system.train_all_models_with_cv(n_splits=5)
     print("\n✅ Pipeline execution completed successfully!")
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    
+    # Check if dataset parameter provided
+    if len(sys.argv) > 1:
+        dataset = sys.argv[1]
+        print(f"\n🔄 Using dataset: {dataset}")
+        main(dataset)
+    else:
+        # Run with default cleaned dataset
+        print("\n" + "█"*80)
+        print("█" + " TRAINING ON CURRENT DATASET ".center(78) + "█")
+        print("█"*80)
+        print("\n📊 Dataset: CurrentDataset_cleaned_fixed_new.csv")
+        print("   ✅ 285 properties")
+        print("   ✅ Original data values preserved")
+        print("   ✅ Timestamp components removed")
+        print("   ✅ Date format: YYYY-MM-DD (no time)")
+        print("\nUsage:")
+        print("  python train_models_current.py                                   # Use cleaned dataset (default)")
+        print("  python train_models_current.py dataset/CUSTOM_DATASET.csv  # Use custom dataset")
+        print("\n" + "█"*80 + "\n")
+        
+        # Run with default cleaned dataset
+        main()
