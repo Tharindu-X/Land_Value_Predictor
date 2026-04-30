@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import warnings
 import json
+import os
 from datetime import datetime
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.preprocessing import StandardScaler
@@ -51,6 +52,7 @@ class ImprovedLandValueMLSystemNew:
         self.df = None
         self.X = None
         self.y = None
+        self.feature_columns = None
         self.scaler = StandardScaler()
         self.cv_results = {}
         self.best_models = {}
@@ -124,6 +126,7 @@ class ImprovedLandValueMLSystemNew:
         
         preprocessor = LandValuePreprocessorNew(self.df)
         self.X, self.y, self.scaler = preprocessor.get_processed_data()
+        self.feature_columns = list(self.X.columns)
         
         print("\n" + "="*80)
         print("PREPROCESSING SUMMARY")
@@ -398,12 +401,115 @@ class ImprovedLandValueMLSystemNew:
         print("\n" + "█"*80)
         print("\n✅ Training Complete!\n")
 
+    def select_best_model(self):
+        """Select best model by average accuracy (excluding ARIMA)"""
+        if not self.cv_results:
+            raise ValueError("Cross-validation results are empty. Train models first.")
+
+        candidates = []
+        for model_name, results_list in self.cv_results.items():
+            if model_name == 'ARIMA':
+                continue
+            if results_list and results_list[0]['RMSE'] > 0:
+                avg_acc = np.mean([r['Accuracy%'] for r in results_list])
+                candidates.append((model_name, avg_acc))
+
+        if not candidates:
+            raise ValueError("No valid models found for selection.")
+
+        candidates.sort(key=lambda x: x[1], reverse=True)
+        return candidates[0]
+
+    def build_model_by_name(self, model_name):
+        """Create a model instance based on the model name"""
+        if model_name == 'Linear Regression':
+            return LinearRegression()
+        if model_name == 'Ridge Regression':
+            return Ridge(alpha=1.0)
+        if model_name == 'Lasso Regression':
+            return Lasso(alpha=1.0)
+        if model_name == 'Decision Tree':
+            return DecisionTreeRegressor(max_depth=15, min_samples_split=10, random_state=42)
+        if model_name == 'Random Forest':
+            rf_params = self.best_params.get('Random Forest', {'n_estimators': 100, 'max_depth': 20, 'min_samples_split': 2})
+            return RandomForestRegressor(random_state=42, n_jobs=-1, **rf_params)
+        if model_name == 'Random Forest Optimized':
+            return RandomForestRegressor(n_estimators=200, max_depth=25, min_samples_split=5,
+                                         max_features='sqrt', random_state=42, n_jobs=-1)
+        if model_name == 'Gradient Boosting':
+            gb_params = self.best_params.get('Gradient Boosting', {'n_estimators': 100, 'max_depth': 5, 'learning_rate': 0.1})
+            return GradientBoostingRegressor(random_state=42, **gb_params)
+        if model_name == 'SVR':
+            return SVR(kernel='rbf', C=1000, gamma='scale')
+        if model_name == 'KNN':
+            return KNeighborsRegressor(n_neighbors=5, weights='distance')
+        if model_name == 'XGBoost':
+            if xgb is None:
+                raise ValueError("XGBoost is not available in this environment.")
+            xgb_params = self.best_params.get('XGBoost', {'n_estimators': 100, 'max_depth': 7, 'learning_rate': 0.1})
+            return xgb.XGBRegressor(random_state=42, **xgb_params)
+        if model_name == 'LightGBM':
+            if lgb is None:
+                raise ValueError("LightGBM is not available in this environment.")
+            lgb_params = self.best_params.get('LightGBM', {'n_estimators': 100, 'max_depth': 7, 'learning_rate': 0.1})
+            return lgb.LGBMRegressor(random_state=42, verbose=-1, **lgb_params)
+
+        raise ValueError(f"Unknown model name: {model_name}")
+
+    def save_best_model(self, output_dir='models'):
+        """Train the best model on full data and save artifacts"""
+        best_model_name, best_avg_acc = self.select_best_model()
+
+        os.makedirs(output_dir, exist_ok=True)
+
+        from sklearn.impute import SimpleImputer
+        imputer = SimpleImputer(strategy='median')
+        X_full = pd.DataFrame(imputer.fit_transform(self.X), columns=self.X.columns)
+
+        # Fit scaler on full data for future use
+        self.scaler = StandardScaler().fit(X_full.values)
+
+        scaling_models = ['KNN', 'SVR', 'Linear Regression', 'Ridge Regression', 'Lasso Regression']
+        if best_model_name in scaling_models:
+            X_train = self.scaler.transform(X_full.values)
+        else:
+            X_train = X_full.values
+
+        model = self.build_model_by_name(best_model_name)
+        model.fit(X_train, self.y.values)
+
+        model_path = os.path.join(output_dir, 'best_model.pkl')
+        scaler_path = os.path.join(output_dir, 'scaler.pkl')
+        info_path = os.path.join(output_dir, 'best_model_info.json')
+
+        joblib.dump(model, model_path)
+        joblib.dump(self.scaler, scaler_path)
+
+        model_info = {
+            'model_name': best_model_name,
+            'average_accuracy': float(best_avg_acc),
+            'feature_columns': self.feature_columns,
+            'training_date': datetime.now().isoformat(),
+            'best_params': self.best_params.get(best_model_name, {})
+        }
+
+        with open(info_path, 'w') as f:
+            json.dump(model_info, f, indent=4)
+
+        print("\n✅ Best model saved successfully!")
+        print(f"   Model: {best_model_name}")
+        print(f"   Accuracy: {best_avg_acc:.2f}%")
+        print(f"   Model path: {model_path}")
+        print(f"   Scaler path: {scaler_path}")
+        print(f"   Info path: {info_path}")
+
 
 def main(dataset_path='dataset/CurrentDataset_cleaned_fixed_new.csv'):
     """Main execution - Train on current dataset"""
     system = ImprovedLandValueMLSystemNew(dataset_path)
     system.load_and_prepare_data()
     system.train_all_models_with_cv(n_splits=5)
+    system.save_best_model()
     print("\n✅ Pipeline execution completed successfully!")
 
 

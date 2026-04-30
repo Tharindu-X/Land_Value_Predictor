@@ -1,0 +1,27 @@
+{
+    "model_name": "KNN",
+    "average_accuracy": 98.87093761097971,
+    "feature_columns": [
+        "city",
+        "ZipCode",
+        "HospitalDistance",
+        "Bank/ATM",
+        "SchoolDistance",
+        "DistToTown",
+        "isfloodedArea",
+        "IsTsunmaiAlertedArea",
+        "Latitude",
+        "Longtitude",
+        "DaysOnMarket",
+        "Year",
+        "Month",
+        "Quarter",
+        "RiskScore",
+        "InfrastructureScore",
+        "EnvironmentalQuality",
+        "DistanceToCenter",
+        "AmenityScore"
+    ],
+    "training_date": "2026-04-30T20:26:36.765933",
+    "best_params": {}
+}
