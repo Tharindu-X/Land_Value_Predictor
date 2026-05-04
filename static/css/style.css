@@ -1,0 +1,376 @@
+:root {
+    --bg-light: #fbfae5;
+    --card-bg: #FFFFFF;
+    --input-bg: #F0F3F7;
+    --accent: #1620ac;
+    --accent-hover: #0b121a;
+    --accent-light: #E3F2FD;
+    --text-main: #1A1A1A;
+    --text-muted: #221f1f;
+    --border: #E0E0E0;
+    --success: #43A047;
+    --error: #E53935;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border-radius: 8px;
+}
+
+body {
+    font-family: 'Courier New', 'Segoe UI', monospace;
+    background: linear-gradient(135deg, var(--bg-light) 0%, #EAEEF2 100%);
+    color: var(--text-main);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.app-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0 2rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 3px solid var(--accent);
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 1000;
+    letter-spacing: 2px;
+    color: var(--accent);
+    font-family: 'Courier New', monospace;
+    text-shadow: 2px 2px 4px rgba(22, 32, 172, 0.2);
+    text-transform: uppercase;
+}
+
+.accent {
+    color: var(--accent);
+    font-weight: 900;
+}
+
+.model-info {
+    display: flex;
+    gap: 1rem;
+}
+
+.badge {
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 0.6rem 1.2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid var(--accent);
+    font-family: 'Courier New', monospace;
+}
+
+/* Main Layout - Calculator Style */
+.prediction-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 968px) {
+    .prediction-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Form Card */
+.form-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.card-header h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    font-family: 'Courier New', monospace;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 3px rgba(22, 32, 172, 0.15);
+}
+
+.card-header p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-family: 'Courier New', monospace;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.full-width {
+    grid-column: span 2;
+}
+
+label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    font-family: 'Courier New', monospace;
+}
+
+input, select {
+    background: var(--input-bg);
+    border: 2px solid var(--border);
+    padding: 0.9rem;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    border-color: var(--accent);
+    background: white;
+    box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+input::placeholder {
+    color: #999;
+}
+
+/* Checkbox */
+.checkbox-group {
+    grid-column: span 2;
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-transform: none;
+    color: var(--text-main);
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    gap: 0.5rem;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkmark {
+    height: 22px;
+    width: 22px;
+    background-color: var(--input-bg);
+    border: 2px solid var(--accent);
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.checkbox-container:hover .checkmark {
+    background-color: var(--accent-light);
+    transform: scale(1.05);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Actions */
+.form-actions {
+    margin-top: 2rem;
+}
+
+button {
+    width: 100%;
+    padding: 1.3rem;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    color: white;
+    border: none;
+    border: 2px solid var(--accent);
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+    box-shadow: var(--shadow);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    background: var(--border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    border-color: var(--border);
+    box-shadow: none;
+}
+
+/* Result Card */
+.result-card {
+    background: linear-gradient(135deg, var(--accent-light) 0%, white 100%);
+    border: 3px solid var(--accent);
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+}
+
+.result-card.hidden {
+    display: none;
+}
+
+.result-content h3 {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+}
+
+.price-display {
+    margin-bottom: 2rem;
+    padding: 2rem 0;
+    border-bottom: 2px solid var(--accent);
+}
+
+.currency {
+    font-size: 1.8rem;
+    color: var(--accent);
+    font-weight: 900;
+    margin-right: 0.3rem;
+    font-family: 'Courier New', monospace;
+}
+
+#predictedPrice {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--accent);
+    font-family: 'Courier New', monospace;
+    letter-spacing: -2px;
+}
+
+.confidence-range {
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-family: 'Courier New', monospace;
+}
+
+#priceRange {
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.model-stats {
+    display: flex;
+    justify-content: space-around;
+    border-top: 2px solid var(--accent);
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.5px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+}
+
+.stat .value {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--accent);
+    font-family: 'Courier New', monospace;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    padding-top: 3rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 2px solid var(--border);
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}

@@ -272,11 +272,17 @@ class LandValuePredictionSystem:
         # Amenity Score - USE SAMPLE DATASET MAX
         df['AmenityScore'] = 100 * (1 - df['DistToTown'] / dataset_dist_max)
         
-        # Encode city using LabelEncoder
+        # Encode city using the same label ordering as training
         le = LabelEncoder()
         if self.sample_df is not None:
-            le.fit(self.sample_df['city'].unique())
-        df['city'] = le.fit_transform(df['city'])
+            le.fit(self.sample_df['city'])
+            if df['city'].iloc[0] not in le.classes_:
+                fallback_city = self.sample_df['city'].mode().iloc[0]
+                print(f"   ⚠️  Unknown city '{df['city'].iloc[0]}' - using '{fallback_city}'")
+                df['city'] = fallback_city
+            df['city'] = le.transform(df['city'])
+        else:
+            df['city'] = le.fit_transform(df['city'])
         
         # Select features matching training
         feature_cols = self.model_info['feature_columns']

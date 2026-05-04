@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Land Value Predictor | Professional Analytics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <h1>LAND VALUE <span class="accent">PREDICTOR</span></h1>
+            </div>
+            <div class="model-info">
+                {% if model_info %}
+                <span class="badge">Model: {{ model_info.model_name }}</span>
+                <span class="badge">Accuracy: {{ "%.2f"|format(model_info.average_accuracy) }}%</span>
+                {% endif %}
+            </div>
+        </header>
+
+        <main>
+            <section class="prediction-section">
+                <div class="form-card">
+                    <div class="card-header">
+                        <h2>PROPERTY DETAILS</h2>
+                        <p>Enter the specifics of the land to calculate its estimated market value.</p>
+                    </div>
+                    
+                    <form id="predictionForm">
+                        <div class="form-grid">
+                            <!-- Location Group -->
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <select id="city" name="city" required>
+                                    <option value="" disabled selected>Select City</option>
+                                    {% for city in cities %}
+                                    <option value="{{ city }}">{{ city }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="ZipCode">Zip Code</label>
+                                <input type="number" id="ZipCode" name="ZipCode" placeholder="e.g. 10100" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="Latitude">Latitude</label>
+                                <input type="number" id="Latitude" name="Latitude" step="any" placeholder="6.9271" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="Longtitude">Longitude</label>
+                                <input type="number" id="Longtitude" name="Longtitude" step="any" placeholder="79.8612" required>
+                            </div>
+
+                            <!-- Distances Group -->
+                            <div class="form-group">
+                                <label for="HospitalDistance">Hospital Distance (km)</label>
+                                <input type="number" id="HospitalDistance" name="HospitalDistance" step="0.1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="BankATM">Bank/ATM Distance (km)</label>
+                                <input type="number" id="BankATM" name="BankATM" step="0.1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="SchoolDistance">School Distance (km)</label>
+                                <input type="number" id="SchoolDistance" name="SchoolDistance" step="0.1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="DistToTown">Town Center Distance (km)</label>
+                                <input type="number" id="DistToTown" name="DistToTown" step="0.1" required>
+                            </div>
+
+                            <!-- Risk & Date -->
+                            <div class="form-group checkbox-group">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="isfloodedArea" name="isfloodedArea">
+                                    <span class="checkmark"></span>
+                                    Is in Flooded Area
+                                </label>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="IsTsunmaiAlertedArea" name="IsTsunmaiAlertedArea">
+                                    <span class="checkmark"></span>
+                                    Tsunami Alert Area
+                                </label>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="PredictionDate">Target Prediction Date</label>
+                                <input type="date" id="PredictionDate" name="PredictionDate" required>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" id="submitBtn">CALCULATE ESTIMATED VALUE</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="result-card hidden" id="resultContainer">
+                    <div class="result-content">
+                        <h3>ESTIMATED MARKET VALUE</h3>
+                        <div class="price-display">
+                            <span class="currency">Rs.</span>
+                            <span id="predictedPrice">0</span>
+                        </div>
+                        <div class="confidence-range">
+                            <p>95% Confidence Range: <span id="priceRange">Rs. 0 - Rs. 0</span></p>
+                        </div>
+                        <div class="model-stats">
+                            <div class="stat">
+                                <span class="label">Accuracy</span>
+                                <span class="value" id="resAccuracy">0%</span>
+                            </div>
+                            <div class="stat">
+                                <span class="label">Model</span>
+                                <span class="value" id="resModel">N/A</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2026 Land Value Prediction System | Professional Grade Analytics</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
